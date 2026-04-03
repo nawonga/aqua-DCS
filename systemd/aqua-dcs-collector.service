@@ -1,0 +1,21 @@
+[Unit]
+Description=Aqua DCS Collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nawonga
+WorkingDirectory=/home/nawonga/Projects/aqua-dcs
+Environment=PYTHONPATH=/home/nawonga/Projects/aqua-dcs/src
+Environment=AQUA_SAMPLE_SEC=5
+Environment=AQUA_FLUSH_SEC=60
+Environment=AQUA_LIVE_JSON=/tmp/aqua-dcs/latest.json
+# Optional: pin DS18B20 id (otherwise auto)
+# Environment=AQUA_DS18B20_ID=28-000000833080
+ExecStart=/usr/bin/python3 -u -m dcs.collector.main
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

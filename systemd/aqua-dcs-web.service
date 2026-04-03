@@ -1,0 +1,17 @@
+[Unit]
+Description=Aqua DCS Web (Flask)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nawonga
+WorkingDirectory=/home/nawonga/Projects/aqua-dcs
+Environment=PYTHONPATH=/home/nawonga/Projects/aqua-dcs/src
+Environment=AQUA_LIVE_JSON=/tmp/aqua-dcs/latest.json
+ExecStart=/usr/bin/python3 -u -m dcs.web.app
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
