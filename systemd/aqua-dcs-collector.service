@@ -1,21 +1,38 @@
 [Unit]
-Description=Aqua DCS Collector
+Description=Mirai Space — Aqua-DCS Collector (45cm 큐브 해수어항 센서 수집/저장)
+Documentation=file:///home/nawonga/MiraiProject/dev/Aqua-DCS/OPERATING_RULES.md
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 User=nawonga
-WorkingDirectory=/home/nawonga/Projects/aqua-dcs
-Environment=PYTHONPATH=/home/nawonga/Projects/aqua-dcs/src
-Environment=AQUA_SAMPLE_SEC=5
-Environment=AQUA_FLUSH_SEC=60
-Environment=AQUA_LIVE_JSON=/tmp/aqua-dcs/latest.json
-# Optional: pin DS18B20 id (otherwise auto)
-# Environment=AQUA_DS18B20_ID=28-000000833080
-ExecStart=/usr/bin/python3 -u -m dcs.collector.main
-Restart=always
-RestartSec=2
+Group=nawonga
+WorkingDirectory=/home/nawonga/MiraiProject/dev/Aqua-DCS
+EnvironmentFile=-/home/nawonga/MiraiProject/dev/Aqua-DCS/.env
+Environment=PYTHONPATH=src
+Environment=AQUA_LIVE_JSON=/run/aqua-dcs/latest.json
+ExecStart=/home/nawonga/MiraiProject/dev/Aqua-DCS/venv/bin/python -u -m dcs.collector.main
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aqua-dcs-collector
+
+# /run/aqua-dcs/latest.json 자동 생성/정리 (재부팅 시 초기화)
+RuntimeDirectory=aqua-dcs
+RuntimeDirectoryMode=0755
+
+# 하드웨어 접근 (DS18B20=1-wire, ADS1115=i2c, 조명/액추에이터=gpio/spi)
+SupplementaryGroups=i2c spi gpio dialout
+
+# 약한 sandbox — DB는 dev/Aqua-DCS/data/ 에 기록
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/nawonga/MiraiProject/dev/Aqua-DCS/data
 
 [Install]
 WantedBy=multi-user.target
